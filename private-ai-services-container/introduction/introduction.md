@@ -4,51 +4,43 @@
 
 Welcome to **Build multimodal AI Vector Search using Oracle Private AI Services Container**.
 
-Oracle Private AI Services Container exists to give you modern model inference inside your own environment. You get a local model endpoint without sending your text or images to a public AI service.
+The team has a practical challenge: make internal documents and images searchable with AI without sending sensitive data to a public service. Alex, Jordan, Sam, Priya, Maya, and Casey will build the solution together, testing where inference should happen and how the result should reach a user.
 
-Its core value is control with flexibility:
-- Keep **data inside your network** and security boundary
-- Update model services **without changing core database** deployment
-- **Reuse one model endpoint** across notebooks, SQL flows, and apps
-- **Support multimodal patterns**, such as image and text embeddings in one solution
+![The six workshop team members stand together: Alex, Jordan, Sam, Priya, Maya, and Casey](./images/story-meet-the-team.png)
 
-Use each path for a different job:
-- **In-database embeddings (`provider=database`)** fit SQL-first workflows with minimal moving parts.
-- **Private AI Services Container (`provider=privateai`)** fits teams that need model agility, multimodal use cases, or shared model serving across tools.
+The team begins with a question that many enterprise AI teams face: how can they make private documents and images searchable without sending the underlying data to a public AI service? Their answer will depend on more than choosing a model. They must understand the runtime, compare two inference paths, and prove that the final search experience works.
 
-Compared with public embedding APIs, a private container is often the stronger enterprise choice:
-- Sensitive data does not leave your environment
-- Latency is more predictable on local network paths
-- Development is less exposed to external quotas, endpoint drift, and service outages
-- There is no charge to create vectors, it is free!
+You join the team as they turn that question into a working solution. The labs move from orientation to implementation, so each result gives you the context needed for the next decision.
 
-In the following labs you will use JupyterLab and Oracle Private AI Services Container to:
-- learn the JupyterLab basics used throughout this workshop
-- discover available models in the Oracle Private AI Services Container
-- generate embeddings using ONNX models stored in the Oracle AI Database and via the API endpoint provided by the Oracle Private AI Services Container.
-- store vectors in Oracle AI Database
-- run cosine similarity search
-- build a simple image search app that uses multimodal embedding models
+### **Follow the Team's Investigation**
 
-Estimated Workshop Time: 70 minutes
+- **Jordan starts in JupyterLab.** The team runs notebooks, inspects files, and uses the terminal. This first step matters because every later experiment depends on knowing where the code, data, and results live.
+- **Sam checks the environment.** Before anyone troubleshoots application code, you verify that JupyterLab, Private AI Services Container, Oracle AI Database, and ORDS can reach one another. By the end of this step, you have evidence that the runtime is ready.
+- **Alex makes the architecture decision.** The team can generate embeddings inside Oracle AI Database with an ONNX model using **`provider=database`**, or call a model endpoint hosted by Oracle Private AI Services Container using **`provider=privateai`**. The database path keeps the workflow close to SQL and the data, with fewer moving parts. The private service path keeps model serving flexible and makes it easier to support multimodal use cases or share one endpoint across notebooks, database workflows, and applications.
+- **Priya turns the experiment into an application.** Text and images are converted into comparable vectors, cosine similarity ranks the results, and a Flask application returns the most relevant images. This is where the architecture becomes useful beyond the notebook.
+- **Maya compares models by the job.** You examine result quality, request time, and operational fit rather than relying on model name alone. The optional next steps leave you with a pattern you can adapt to your own data, models, and applications.
 
-### Architecture at a Glance
+### **Why This Matters**
 
-- `jupyterlab` runs Python notebooks.
-- `privateai` serves embedding models at `http://privateai:8080` on the container network.
-- `aidbfree` stores documents and vectors.
+Running inference inside your environment gives the team more control over sensitive data, network paths, model changes, and service dependencies. It also avoids sending every embedding request to a public endpoint with external quotas, endpoint changes, or usage-based charges. The goal is not simply to create vectors; it is to understand where inference belongs and why that choice matters for an enterprise application.
 
-![architecture](./images/arch.png)
+Estimated Workshop Time: 100 minutes, including optional next steps
+
+### **Architecture at a Glance**
+
+![Architecture overview showing Alex and two teammates connecting JupyterLab, Private AI, Oracle AI Database, and the application inside the private network](./images/story-architecture-overview.png)
 
 
 ### Objectives
 
-In this workshop, you will:
-- Get comfortable with JupyterLab notebooks and terminals
-- Validate the runtime services required for the lab
-- Generate embeddings with both database-stored ONNX models and Oracle Private AI Services Container
-- Perform semantic similarity search in Oracle AI Database 26ai
-- Build a simple image app that uses multimodal embeddings for similarity search
+By the end of the workshop, you will have followed the complete path from notebook to application:
+
+- Orient yourself in JupyterLab and run the workshop code
+- Prove that the private runtime services are reachable
+- Generate and store embeddings with both supported inference paths
+- Search vectors with cosine similarity in Oracle AI Database
+- Compare models using quality, latency, and operational fit
+- Build a multimodal image-search application that uses the vectors
 
 
 ## Learn More
@@ -58,5 +50,5 @@ In this workshop, you will:
 - [DBMS_VECTOR UTL_TO_EMBEDDING](https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/utl_to_embedding-and-utl_to_embeddings-dbms_vector.html)
 
 ## Acknowledgements
-- **Author** - Oracle LiveLabs Team
-- **Last Updated By/Date** - Oracle LiveLabs Team, April 2026
+- **Author** - Kevin Lazarz & Matt Kowalik
+- **Last Updated By/Date** - Matt Kowalik, September 2026
