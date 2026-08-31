@@ -38,6 +38,11 @@
       "filename": "../../lab7-compare-models-jupyterlab/lab7-compare-models-jupyterlab.md"
     },
     {
+      "title": "Optional Lab: Next Steps",
+      "description": "Extend the notebook and Flask patterns with PDF chunking, ORDS publication, and additional model experiments.",
+      "filename": "../../lab6-optional-next-steps/lab6-optional-next-steps.md"
+    },
+    {
       "title": "Need Help?",
       "description": "Solutions to common problems and directions for receiving live help.",
       "filename": "https://livelabs.oracle.com/cdn/common/labs/need-help/need-help-livelabs.md"

@@ -2,21 +2,15 @@
 
 ## Introduction
 
-In this lab, you build a small Flask application that performs semantic image search.
+Priya wants to turn the team's infrastructure work into something a person can use. With Maya's help, she connects text and image embeddings so a natural-language request can find related images in the private collection.
 
-This pattern is useful when users need to find visual content by meaning, not just by file name or manual tags. By combining CLIP embeddings with Oracle AI Vector Search, you can support natural-language queries over image libraries while keeping model inference inside your private environment.
+![Priya presents a Flask image-search application while Maya explains comparable text and image vectors](./images/story-image-search.png)
 
-The same approach can solve real problems across industries, for example:
-- Retail and e-commerce: find visually similar products for recommendations and catalog operations.
-- Manufacturing and field service: retrieve matching equipment photos for troubleshooting and parts identification.
-- Healthcare and life sciences: organize and search large medical or lab image collections with controlled infrastructure.
-- Media, publishing, and marketing: speed up creative asset discovery across large internal media libraries.
+Priya begins with the user’s question: “Find the images that match this description.” Maya shows how the application can answer it without relying on file names or manual tags. The image collection is represented by CLIP image embeddings, the request is represented by a compatible CLIP text embedding, and Oracle AI Vector Search compares them in the same vector space.
 
-The workflow is:
-- Download and unzip an image archive with `wget`
-- Embed each image with `clip-vit-base-patch32-img`
-- Embed user text queries with `clip-vit-base-patch32-txt`
-- Return and display the top 10 most similar images from Oracle AI Database
+This matters because the team is no longer proving that the services work; they are using those services to solve a real discovery problem. A Flask application can return the ten most relevant images while the image data, vectors, and model requests remain inside the private environment. The same pattern can help retail teams find similar products, field engineers retrieve matching equipment photos, researchers organize medical or lab images, or creative teams search internal media libraries.
+
+You will build the application in stages: prepare the image collection, load image vectors into Oracle AI Database, connect the application to the private embedding endpoint, and submit a natural-language query. Each stage makes the final search experience easier to understand and troubleshoot.
 
 Estimated Time: 30 minutes
 
@@ -531,5 +525,5 @@ This lab assumes:
 - [Oracle AI Vector Search](https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/)
 
 ## Acknowledgements
-- **Author** - Oracle LiveLabs Team
-- **Last Updated By/Date** - Oracle LiveLabs Team, April 2026
+- **Author** - Kevin Lazarz & Matt Kowalik
+- **Last Updated By/Date** - Matt Kowalik, September 2026
