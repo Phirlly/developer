@@ -2,12 +2,13 @@
 
 ## Introduction
 
-This workshop uses JupyterLab for three common tasks:
-- opening notebook files
-- running Python notebook cells
-- opening a terminal when you need shell commands
+Jordan is the team's JupyterLab guide. Before anyone tests models or writes search code, Jordan helps the team get comfortable in the shared workspace and shows where each kind of work belongs.
 
-If you are new to JupyterLab, spend a few minutes in this lab first. You will learn how to open a notebook, run cells, and open a terminal. These are the JupyterLab skills you need for the remaining labs.
+![Jordan introduces the JupyterLab launcher, notebook, file browser, and terminal](./images/story-jupyterlab-basics.png)
+
+Jordan starts with the File Browser, where the team finds the notebooks and supporting files. Next, the Launcher provides the right starting point for a Python notebook. Inside the notebook, the team runs small pieces of code and reads the output as each step completes. When a task needs shell commands, such as checking a service or downloading a file, Jordan opens a Terminal without leaving the workspace.
+
+This orientation matters because the rest of the workshop uses the same shared workspace. Once you know where files live, how notebook execution is shown, and when to use the terminal, you can focus on the runtime checks and embedding experiments instead of finding your way around the interface.
 
 Estimated Time: 5 minutes
 
@@ -107,5 +108,5 @@ This lab assumes:
 4. You are now ready to continue with the environment checks in Lab 2.
 
 ## Acknowledgements
-- **Author** - Oracle LiveLabs Team
-- **Last Updated By/Date** - Oracle LiveLabs Team, April 2026
+- **Author** - Kevin Lazarz & Matt Kowalik
+- **Last Updated By/Date** - Matt Kowalik, September 2026

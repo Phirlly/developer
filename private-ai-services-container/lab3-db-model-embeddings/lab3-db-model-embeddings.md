@@ -2,7 +2,13 @@
 
 ## Introduction
 
-In this lab you run vector search using an embedding model that is already stored in Oracle AI Database (for example `ALL_MINILM_L12_V2`).
+Alex starts with the SQL-first option. If the model already lives in Oracle AI Database, the team can turn documents into vectors, store them beside the data, and search them without adding another model-serving hop.
+
+![Alex explains the database embedding path from document input to vector similarity search](./images/story-database-embeddings.png)
+
+Alex chooses the database path first because it keeps the experiment close to the documents. You will inspect the models already available in Oracle AI Database, select an embedding model such as `ALL_MINILM_L12_V2`, and use SQL-backed tools to turn document text into vectors.
+
+This matters when the data is already governed and stored in the database. The team avoids an extra model-serving hop, keeps the vectors beside the source data, and can use familiar SQL to search for semantically related content. By the end of the lab, you will have seen the complete database flow: discover a model, generate embeddings, store them in a `VECTOR` column, and rank results with cosine similarity.
 
 
 Estimated Time: 15 minutes
@@ -283,5 +289,5 @@ print('Connection closed.')
 - [DBMS_VECTOR UTL_TO_EMBEDDING](https://docs.oracle.com/en/database/oracle/oracle-database/26/vecse/utl_to_embedding-and-utl_to_embeddings-dbms_vector.html)
 
 ## Acknowledgements
-- **Author** - Oracle LiveLabs Team
-- **Last Updated By/Date** - Oracle LiveLabs Team, April 2026
+- **Author** - Kevin Lazarz & Matt Kowalik
+- **Last Updated By/Date** - Matt Kowalik, September 2026

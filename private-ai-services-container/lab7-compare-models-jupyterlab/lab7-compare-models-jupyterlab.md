@@ -1,17 +1,16 @@
-# Lab 7: How to choose the right model? Compare Embedding Models in JupyterLab
+# Lab 6: How to choose the right model? Compare Embedding Models in JupyterLab
 
 ## Introduction
 
-In this lab, you compare Private AI text embedding models from a JupyterLab notebook.
+Maya has two working paths, but the team still needs evidence before choosing a model. She asks Priya, Sam, and Casey to compare the same questions across models and record the tradeoffs that matter to the application.
 
-Model choice is not only about picking the largest or newest model. A model should be tested with your own content and your own questions, because the best choice depends on result quality, response time, language needs, and available resources.
+![Maya leads the team in comparing embedding models by quality, latency, user experience, and operational fit](./images/story-compare-models.png)
 
-You will use the same short set of sample texts with each model. Then you will ask the same question and compare:
-- which text each model ranks highest
-- how long the embedding requests take
-- which model feels like the best fit for your use case
+Maya wants evidence before the team commits to a model. Priya brings the user perspective, Sam watches the runtime behavior, and Casey considers the operational fit. Together, they test the same sample content and ask the same question of several Private AI text embedding models.
 
-This lab keeps the code simple. It calls the Private AI Services Container directly and does not create or change database tables.
+This matters because the largest or newest model is not automatically the right choice. A useful model must represent your content well, return results in a reasonable time, support the languages you need, and fit the resources available in your environment. The team compares which text ranks highest and how long each request takes before making a recommendation.
+
+You will run the comparison from a JupyterLab notebook by calling the Private AI Services Container directly. The lab keeps the experiment isolated: it does not create or change database tables, so you can focus on the evidence that will guide the application’s model choice.
 
 Estimated Time: 15 minutes
 
@@ -226,5 +225,5 @@ When you review the results, remember these points:
 Use the comparison as a practical test. The best model is the one that returns the results a user expects, with acceptable response time, for the real content you plan to search.
 
 ## Acknowledgements
-- **Author** - Oracle LiveLabs Team
-- **Last Updated By/Date** - Oracle LiveLabs Team, April 2026
+- **Author** - Kevin Lazarz & Matt Kowalik
+- **Last Updated By/Date** - Matt Kowalik, September 2026

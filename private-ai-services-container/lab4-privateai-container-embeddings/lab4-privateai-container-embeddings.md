@@ -2,7 +2,13 @@
 
 ## Introduction
 
-In this lab you run vector search using Oracle Private AI Services Container (`privateai`) for embedding generation.
+The team now tests the second path. Alex moves model inference into the private service while keeping the resulting vectors in Oracle AI Database, separating model serving from the data and search layer.
+
+![Alex explains the Private AI Services Container path from document input to stored embeddings](./images/story-private-ai-embeddings.png)
+
+Alex now tests the second inference path. Instead of loading the embedding model into Oracle AI Database, the team sends document text to the private service at `privateai`. The service performs the inference, then Oracle AI Database stores the resulting vectors for search.
+
+This separation matters when a team wants to change or scale model serving without redesigning the database and search layer. You will follow the request from document input to the private endpoint, confirm which model is available, store the returned embeddings in Oracle AI Database, and use SQL to search the results. The data remains inside the private environment while model serving stays flexible.
 
 This lab mirrors the notebook:
 
@@ -330,5 +336,5 @@ print('Connection closed.')</copy>
 - [Private AI Services Container API Reference](https://docs.oracle.com/en/database/oracle/oracle-database/26/prvai/private-ai-services-container-api-reference.html)
 
 ## Acknowledgements
-- **Author** - Oracle LiveLabs Team
-- **Last Updated By/Date** - Oracle LiveLabs Team, April 2026
+- **Author** - Kevin Lazarz & Matt Kowalik
+- **Last Updated By/Date** - Matt Kowalik, September 2026
