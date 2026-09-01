@@ -1,4 +1,4 @@
-# Put AI Agents to Work: MCP Servers on OCI Container Instances
+# Put AI Agents to Work with MCP and OCI Container Instances.
 
 Deploy remote Model Context Protocol (MCP) servers on OCI Container Instances,
 then connect an MCP-capable AI client to call those tools over HTTPS.

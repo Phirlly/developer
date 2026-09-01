@@ -9,6 +9,7 @@ without changing the parent workflow.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import subprocess
 import sys
@@ -17,8 +18,18 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 README_BASENAMES = {"readme.md", "skill.md"}
+EXPECTED_HELP_EMAIL = "livelabs-help-oci_us@oracle.com"
 
 IMAGE_REFERENCE = re.compile(r"!\[[^\]]*\]\(((?:(?:\.\.?)/)*images/[^\"\s\)]+)")
+ESTIMATED_WORKSHOP_TIME = re.compile(
+    r"Estimated Workshop Time:\s*(\d+)\s+minutes?",
+    re.IGNORECASE,
+)
+ESTIMATED_LAB_TIME = re.compile(
+    r"Estimated Time:\s*(\d+)\s+minutes?",
+    re.IGNORECASE,
+)
+EXTERNAL_TUTORIAL_REFERENCE = re.compile(r"^[a-z][a-z0-9+.-]*://", re.IGNORECASE)
 
 MARKDOWN_HYGIENE_PATTERNS = [
     (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"), "private key material"),
@@ -90,6 +101,14 @@ def repo_relative(repo_root: Path, path: Path) -> str:
 
 def project_relative(path: Path) -> str:
     return path.relative_to(PROJECT_ROOT).as_posix()
+
+
+def is_relative_to(path: Path, root: Path) -> bool:
+    try:
+        path.resolve(strict=False).relative_to(root.resolve(strict=False))
+    except ValueError:
+        return False
+    return True
 
 
 def path_exists_with_exact_case(path: Path) -> bool:
@@ -249,6 +268,120 @@ def validate_livelabs_content(repo_root: Path, files: list[Path]) -> list[str]:
     return ["LiveLabs content validation failed:", output]
 
 
+def validate_timing_consistency() -> list[str]:
+    failures: list[str] = []
+    manifest_files = sorted((PROJECT_ROOT / "workshops").glob("*/manifest.json"))
+
+    for manifest in manifest_files:
+        manifest_name = project_relative(manifest)
+        try:
+            manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            failures.append(f"{manifest_name}: invalid JSON: {error}")
+            continue
+
+        tutorials = manifest_data.get("tutorials")
+        if not isinstance(tutorials, list):
+            failures.append(f"{manifest_name}: missing tutorials list")
+            continue
+
+        workshop_minutes: int | None = None
+        lab_total = 0
+        timed_lab_count = 0
+
+        for index, tutorial in enumerate(tutorials, start=1):
+            if not isinstance(tutorial, dict):
+                failures.append(f"{manifest_name}: tutorial {index} must be an object")
+                continue
+
+            filename = tutorial.get("filename")
+            if not isinstance(filename, str) or not filename.strip():
+                failures.append(f"{manifest_name}: tutorial {index} missing filename")
+                continue
+
+            if EXTERNAL_TUTORIAL_REFERENCE.match(filename):
+                continue
+
+            tutorial_path = (manifest.parent / filename).resolve(strict=False)
+            if not is_relative_to(tutorial_path, PROJECT_ROOT):
+                failures.append(
+                    f"{manifest_name}: local tutorial path outside project: {filename}"
+                )
+                continue
+
+            if not tutorial_path.is_file():
+                failures.append(f"{manifest_name}: local tutorial missing: {filename}")
+                continue
+
+            if tutorial_path.suffix.lower() != ".md":
+                continue
+
+            text = tutorial_path.read_text(encoding="utf-8")
+            workshop_match = ESTIMATED_WORKSHOP_TIME.search(text)
+            if workshop_match:
+                minutes = int(workshop_match.group(1))
+                if workshop_minutes is not None and workshop_minutes != minutes:
+                    failures.append(
+                        f"{manifest_name}: multiple workshop estimates found: "
+                        f"{workshop_minutes} minutes and {minutes} minutes"
+                    )
+                workshop_minutes = minutes
+                continue
+
+            lab_match = ESTIMATED_LAB_TIME.search(text)
+            if lab_match:
+                lab_total += int(lab_match.group(1))
+                timed_lab_count += 1
+                continue
+
+            failures.append(
+                f"{manifest_name}: local tutorial {project_relative(tutorial_path)} "
+                "is missing `Estimated Time: <n> minutes` or "
+                "`Estimated Workshop Time: <n> minutes`"
+            )
+
+        if workshop_minutes is None:
+            failures.append(
+                f"{manifest_name}: missing local tutorial with "
+                "`Estimated Workshop Time: <n> minutes`"
+            )
+            continue
+
+        if timed_lab_count == 0:
+            failures.append(f"{manifest_name}: no local timed lab tutorials found")
+            continue
+
+        if lab_total != workshop_minutes:
+            failures.append(
+                f"{manifest_name}: local lab timing total is {lab_total} minutes "
+                f"but workshop estimate is {workshop_minutes} minutes"
+            )
+
+    return failures
+
+
+def validate_manifest_metadata() -> list[str]:
+    failures: list[str] = []
+    manifest_files = sorted((PROJECT_ROOT / "workshops").glob("*/manifest.json"))
+
+    for manifest in manifest_files:
+        manifest_name = project_relative(manifest)
+        try:
+            manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            failures.append(f"{manifest_name}: invalid JSON: {error}")
+            continue
+
+        help_email = manifest_data.get("help")
+        if help_email != EXPECTED_HELP_EMAIL:
+            failures.append(
+                f"{manifest_name}: help email must be {EXPECTED_HELP_EMAIL}, "
+                f"found {help_email!r}"
+            )
+
+    return failures
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Validate changed project Markdown against parent LiveLabs CI checks."
@@ -280,6 +413,8 @@ def main() -> int:
 
     changed_files, failures = changed_markdown_files(repo_root, args.base_ref, args.head_ref)
     failures.extend(validate_tracked_path_hygiene(repo_root))
+    failures.extend(validate_manifest_metadata())
+    failures.extend(validate_timing_consistency())
 
     if changed_files:
         failures.extend(validate_filename_conventions(changed_files))

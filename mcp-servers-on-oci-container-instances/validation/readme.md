@@ -6,7 +6,9 @@ and OCI Resource Manager assets.
 Current checks:
 
 - [livelabs_markdown.py](livelabs_markdown.py): local Markdown/LiveLabs CI
-  validation for changed and untracked project Markdown files.
+  validation for changed and untracked project Markdown files, tracked
+  local-only path hygiene, workshop timing consistency, and manifest help email
+  metadata.
 - [test_livelabs_markdown.py](test_livelabs_markdown.py): unit tests for the
   local Markdown validator.
 - [terraform_contracts.py](terraform_contracts.py): static contract validation

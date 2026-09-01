@@ -5,7 +5,7 @@
 In this lab, you use Resource Manager to destroy the OCI resources created for
 the workshop.
 
-Estimated Time: 10 minutes
+Estimated Time: 5 minutes
 
 ### Objectives
 
@@ -15,34 +15,40 @@ In this lab, you will:
 * start the destroy workflow;
 * confirm cleanup is complete.
 
+### Prerequisites
+
+Complete the deployment and validation labs. Keep the Resource Manager stack
+name and compartment available so you can find the stack to destroy.
+
 ## Task 1: Open the stack actions menu
 
-Open the Resource Manager stack used for this workshop.
+1. Open the Resource Manager stack used for this workshop.
 
-![Resource Manager stack details](../images/13-stack-details.png)
+    ![Resource Manager stack details](../images/13-stack-details.png)
 
-Open **Stack actions** and select **Destroy**.
+2. Open **Stack actions** and select **Destroy**.
 
-![Stack actions destroy option](../images/14-stack-actions-destroy.png)
+    ![Stack actions destroy option](../images/14-stack-actions-destroy.png)
 
 ## Task 2: Review the destroy dialog
 
-Review the destroy dialog before continuing.
+1. Review the destroy dialog before continuing.
 
-![Destroy stack dialog](../images/15-destroy-stack-dialog.png)
+    ![Destroy stack dialog](../images/15-destroy-stack-dialog.png)
 
-Select **Destroy** only when you are ready to remove the lab resources.
+2. Select **Destroy** only when you are ready to remove the lab resources.
 
 ## Task 3: Confirm cleanup
 
-Wait for the destroy job to complete successfully. After cleanup, the API
-Gateway endpoints and Container Instance created by this workshop are no longer
-available.
+1. Wait for the destroy job to complete successfully.
+
+2. Confirm the API Gateway endpoints and Container Instance created by this
+    workshop are no longer available.
 
 ## Task 4: Revoke the GitHub token
 
-If you created a GitHub token for the lab, revoke or delete it after the
-workshop.
+1. If you created a GitHub token for the lab, revoke or delete it after the
+    workshop.
 
 ## Acknowledgements
 

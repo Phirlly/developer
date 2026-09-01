@@ -1,4 +1,4 @@
-# Put AI Agents to Work with MCP and OCI Container Instances
+# Put AI Agents to Work with MCP and OCI Container Instances.
 
 ## About this Workshop
 
@@ -11,7 +11,7 @@ The Container Instance hosts the MCP servers. The large language model does not
 run in the Container Instance. Your MCP-capable AI client, such as Codex or
 Cline, supplies the model and calls the hosted MCP tools over Streamable HTTP.
 
-Estimated Workshop Time: 90 minutes
+Estimated Workshop Time: 60 minutes
 
 ### Objectives
 
@@ -49,10 +49,15 @@ You need:
 
 * access to an OCI tenancy and a compartment where you can create Resource
   Manager stacks, networking, API Gateway, and Container Instance resources;
-* an MCP-capable AI client for the client-connection labs.
+* an MCP-capable AI client for the client-connection labs;
+* a least-privilege GitHub token available for the GitHub MCP lab.
 
 You do not need OCI CLI, Terraform CLI, an SSH key, a Terraform Cloud token, or
 an HCP token to deploy the Resource Manager stack.
+
+The estimate assumes your OCI access, AI client, and GitHub token are ready
+before you start. Creating or approving a new GitHub token during the workshop
+can add time.
 
 ## Acknowledgements
 

@@ -1,5 +1,5 @@
 {
-  "help": "livelabs-help-aiservices_us@oracle.com",
+  "help": "livelabs-help-oci_us@oracle.com",
   "tutorials": [
     {
       "description": "Prerequisites for Oracle-hosted LiveLabs environments.",
@@ -52,5 +52,5 @@
       "title": "Need Help?"
     }
   ],
-  "workshoptitle": "Put AI Agents to Work with MCP and OCI Container Instances"
+  "workshoptitle": "Put AI Agents to Work with MCP and OCI Container Instances."
 }
