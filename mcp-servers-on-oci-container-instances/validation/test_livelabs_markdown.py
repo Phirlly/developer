@@ -69,6 +69,86 @@ class ImageReferenceValidationTests(unittest.TestCase):
             self.assertIn("../images/missing.png", failures[0])
 
 
+class RenderedQaHeadingValidationTests(unittest.TestCase):
+    def test_second_h2_must_start_with_task(self) -> None:
+        with tempfile.TemporaryDirectory() as workspace:
+            project_root = Path(workspace)
+            intro_dir = project_root / "introduction"
+            intro_dir.mkdir()
+            markdown_file = intro_dir / "introduction.md"
+            markdown_file.write_text(
+                "\n".join(
+                    [
+                        "# Introduction",
+                        "",
+                        "## About this Workshop",
+                        "",
+                        "Estimated Workshop Time: 60 minutes",
+                        "",
+                        "### Objectives",
+                        "",
+                        "* Objective",
+                        "",
+                        "## Acknowledgements",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            original_project_root = livelabs_markdown.PROJECT_ROOT
+            livelabs_markdown.PROJECT_ROOT = project_root
+            try:
+                failures = livelabs_markdown.validate_rendered_qa_heading_order(
+                    [markdown_file]
+                )
+            finally:
+                livelabs_markdown.PROJECT_ROOT = original_project_root
+
+            self.assertEqual(1, len(failures))
+            self.assertIn("introduction/introduction.md", failures[0])
+            self.assertIn("second H2 heading to start with `Task`", failures[0])
+
+    def test_introduction_with_task_as_second_h2_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as workspace:
+            project_root = Path(workspace)
+            intro_dir = project_root / "introduction"
+            intro_dir.mkdir()
+            markdown_file = intro_dir / "introduction.md"
+            markdown_file.write_text(
+                "\n".join(
+                    [
+                        "# Introduction",
+                        "",
+                        "## Introduction",
+                        "",
+                        "Estimated Workshop Time: 60 minutes",
+                        "",
+                        "### Objectives",
+                        "",
+                        "* Objective",
+                        "",
+                        "## Task 1: Review the Workshop",
+                        "",
+                        "1. Review the workshop flow.",
+                        "",
+                        "## Acknowledgements",
+                    ]
+                ),
+                encoding="utf-8",
+            )
+
+            original_project_root = livelabs_markdown.PROJECT_ROOT
+            livelabs_markdown.PROJECT_ROOT = project_root
+            try:
+                failures = livelabs_markdown.validate_rendered_qa_heading_order(
+                    [markdown_file]
+                )
+            finally:
+                livelabs_markdown.PROJECT_ROOT = original_project_root
+
+            self.assertEqual([], failures)
+
+
 class ChangedFileDiscoveryTests(unittest.TestCase):
     def test_untracked_project_markdown_is_included_for_local_validation(self) -> None:
         with tempfile.TemporaryDirectory() as workspace:
@@ -278,6 +358,79 @@ class ManifestMetadataValidationTests(unittest.TestCase):
             livelabs_markdown.PROJECT_ROOT = project_root
             try:
                 failures = livelabs_markdown.validate_manifest_metadata()
+            finally:
+                livelabs_markdown.PROJECT_ROOT = original_project_root
+
+        self.assertEqual([], failures)
+
+
+class ManifestTutorialOrderValidationTests(unittest.TestCase):
+    def write_manifest(self, project_root: Path, titles: list[str]) -> None:
+        manifest_dir = project_root / "workshops" / "sandbox"
+        manifest_dir.mkdir(parents=True)
+        tutorials = [
+            {
+                "title": title,
+                "description": f"{title}.",
+                "filename": f"https://example.com/{index}.md",
+            }
+            for index, title in enumerate(titles, start=1)
+        ]
+        (manifest_dir / "manifest.json").write_text(
+            json.dumps({"help": "livelabs-help-oci_us@oracle.com", "tutorials": tutorials}),
+            encoding="utf-8",
+        )
+
+    def test_get_started_must_follow_introduction(self) -> None:
+        with tempfile.TemporaryDirectory() as workspace:
+            project_root = Path(workspace)
+            self.write_manifest(
+                project_root,
+                ["Get Started", "Introduction", "Lab 1", "Need Help?"],
+            )
+
+            original_project_root = livelabs_markdown.PROJECT_ROOT
+            livelabs_markdown.PROJECT_ROOT = project_root
+            try:
+                failures = livelabs_markdown.validate_manifest_tutorial_order()
+            finally:
+                livelabs_markdown.PROJECT_ROOT = original_project_root
+
+        self.assertEqual(1, len(failures))
+        self.assertIn("Get Started", failures[0])
+        self.assertIn("right after Introduction", failures[0])
+
+    def test_need_help_must_be_last(self) -> None:
+        with tempfile.TemporaryDirectory() as workspace:
+            project_root = Path(workspace)
+            self.write_manifest(
+                project_root,
+                ["Introduction", "Get Started", "Need Help?", "Lab 1"],
+            )
+
+            original_project_root = livelabs_markdown.PROJECT_ROOT
+            livelabs_markdown.PROJECT_ROOT = project_root
+            try:
+                failures = livelabs_markdown.validate_manifest_tutorial_order()
+            finally:
+                livelabs_markdown.PROJECT_ROOT = original_project_root
+
+        self.assertEqual(1, len(failures))
+        self.assertIn("Need Help?", failures[0])
+        self.assertIn("last tutorial", failures[0])
+
+    def test_valid_manifest_order_passes(self) -> None:
+        with tempfile.TemporaryDirectory() as workspace:
+            project_root = Path(workspace)
+            self.write_manifest(
+                project_root,
+                ["Introduction", "Get Started", "Lab 1", "Need Help?"],
+            )
+
+            original_project_root = livelabs_markdown.PROJECT_ROOT
+            livelabs_markdown.PROJECT_ROOT = project_root
+            try:
+                failures = livelabs_markdown.validate_manifest_tutorial_order()
             finally:
                 livelabs_markdown.PROJECT_ROOT = original_project_root
 

@@ -30,6 +30,7 @@ ESTIMATED_LAB_TIME = re.compile(
     re.IGNORECASE,
 )
 EXTERNAL_TUTORIAL_REFERENCE = re.compile(r"^[a-z][a-z0-9+.-]*://", re.IGNORECASE)
+H2_HEADING = re.compile(r"^##(?!#)\s+(.+?)\s*(?:#+\s*)?$")
 
 MARKDOWN_HYGIENE_PATTERNS = [
     (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"), "private key material"),
@@ -215,6 +216,49 @@ def validate_markdown_hygiene(files: list[Path]) -> list[str]:
     return failures
 
 
+def h2_headings(path: Path) -> list[tuple[int, str]]:
+    headings: list[tuple[int, str]] = []
+    in_code_block = False
+
+    for line_number, raw_line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        line = raw_line.rstrip()
+        if re.match(r"^\s*```[^`]*$", line):
+            in_code_block = not in_code_block
+            continue
+        if in_code_block:
+            continue
+
+        match = H2_HEADING.match(line)
+        if match:
+            headings.append((line_number, match.group(1).strip()))
+
+    return headings
+
+
+def validate_rendered_qa_heading_order(files: list[Path]) -> list[str]:
+    failures: list[str] = []
+
+    for path in livelabs_supported_markdown(files):
+        headings = h2_headings(path)
+        if len(headings) < 2:
+            failures.append(
+                f"{project_relative(path)}: rendered QA lint requires the "
+                "second H2 heading to start with `Task`, but fewer than two "
+                "H2 headings were found"
+            )
+            continue
+
+        line_number, heading = headings[1]
+        if not heading.startswith("Task"):
+            failures.append(
+                f"{project_relative(path)}:{line_number}: rendered QA lint "
+                "requires the second H2 heading to start with `Task`, found "
+                f"{heading!r}"
+            )
+
+    return failures
+
+
 def validate_tracked_path_hygiene(repo_root: Path) -> list[str]:
     tracked_files, failures = tracked_project_files(repo_root)
     if failures:
@@ -240,6 +284,41 @@ def livelabs_supported_markdown(files: list[Path]) -> list[Path]:
         if path.suffix.lower() == ".md":
             supported.append(path)
     return supported
+
+
+def manifest_local_markdown_files() -> tuple[list[Path], list[str]]:
+    files: set[Path] = set()
+    failures: list[str] = []
+
+    for manifest in sorted((PROJECT_ROOT / "workshops").glob("*/manifest.json")):
+        manifest_name = project_relative(manifest)
+        try:
+            manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            failures.append(f"{manifest_name}: invalid JSON: {error}")
+            continue
+
+        tutorials = manifest_data.get("tutorials")
+        if not isinstance(tutorials, list):
+            continue
+
+        for index, tutorial in enumerate(tutorials, start=1):
+            if not isinstance(tutorial, dict):
+                continue
+
+            filename = tutorial.get("filename")
+            if not isinstance(filename, str) or not filename.strip():
+                continue
+            if EXTERNAL_TUTORIAL_REFERENCE.match(filename):
+                continue
+
+            tutorial_path = (manifest.parent / filename).resolve(strict=False)
+            if not is_relative_to(tutorial_path, PROJECT_ROOT):
+                continue
+            if tutorial_path.suffix.lower() == ".md" and tutorial_path.is_file():
+                files.add(tutorial_path)
+
+    return sorted(files), failures
 
 
 def validate_livelabs_content(repo_root: Path, files: list[Path]) -> list[str]:
@@ -382,6 +461,52 @@ def validate_manifest_metadata() -> list[str]:
     return failures
 
 
+def validate_manifest_tutorial_order() -> list[str]:
+    failures: list[str] = []
+    manifest_files = sorted((PROJECT_ROOT / "workshops").glob("*/manifest.json"))
+
+    for manifest in manifest_files:
+        manifest_name = project_relative(manifest)
+        try:
+            manifest_data = json.loads(manifest.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as error:
+            failures.append(f"{manifest_name}: invalid JSON: {error}")
+            continue
+
+        tutorials = manifest_data.get("tutorials")
+        if not isinstance(tutorials, list):
+            failures.append(f"{manifest_name}: missing tutorials list")
+            continue
+
+        titles = [
+            tutorial.get("title")
+            for tutorial in tutorials
+            if isinstance(tutorial, dict) and isinstance(tutorial.get("title"), str)
+        ]
+
+        try:
+            introduction_index = titles.index("Introduction")
+        except ValueError:
+            failures.append(f"{manifest_name}: missing Introduction tutorial")
+            continue
+
+        try:
+            get_started_index = titles.index("Get Started")
+        except ValueError:
+            failures.append(f"{manifest_name}: missing Get Started tutorial")
+        else:
+            if get_started_index != introduction_index + 1:
+                failures.append(
+                    f"{manifest_name}: Get Started tutorial must be right after "
+                    "Introduction"
+                )
+
+        if not titles or titles[-1] != "Need Help?":
+            failures.append(f"{manifest_name}: Need Help? must be the last tutorial")
+
+    return failures
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Validate changed project Markdown against parent LiveLabs CI checks."
@@ -413,8 +538,12 @@ def main() -> int:
 
     changed_files, failures = changed_markdown_files(repo_root, args.base_ref, args.head_ref)
     failures.extend(validate_tracked_path_hygiene(repo_root))
+    manifest_files, manifest_file_failures = manifest_local_markdown_files()
+    failures.extend(manifest_file_failures)
     failures.extend(validate_manifest_metadata())
+    failures.extend(validate_manifest_tutorial_order())
     failures.extend(validate_timing_consistency())
+    failures.extend(validate_rendered_qa_heading_order(manifest_files))
 
     if changed_files:
         failures.extend(validate_filename_conventions(changed_files))

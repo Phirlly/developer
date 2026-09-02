@@ -1,6 +1,8 @@
 # Put AI Agents to Work with MCP and OCI Container Instances.
 
-## About this Workshop
+## Introduction
+
+### About this Workshop
 
 Model Context Protocol (MCP) gives AI agents a standard way to connect to
 external tools. In this workshop, you deploy three ready-made MCP servers on
@@ -58,6 +60,13 @@ an HCP token to deploy the Resource Manager stack.
 The estimate assumes your OCI access, AI client, and GitHub token are ready
 before you start. Creating or approving a new GitHub token during the workshop
 can add time.
+
+## Task 1: Review the Workshop Flow
+
+1. Review the workshop objectives, build summary, and prerequisites before you
+    continue.
+
+2. You may now **proceed to the next lab**
 
 ## Acknowledgements
 

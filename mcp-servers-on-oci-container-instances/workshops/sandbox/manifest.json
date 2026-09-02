@@ -2,14 +2,14 @@
   "help": "livelabs-help-oci_us@oracle.com",
   "tutorials": [
     {
-      "description": "Prerequisites for Oracle-hosted LiveLabs environments.",
-      "filename": "https://livelabs.oracle.com/cdn/common/labs/cloud-login/cloud-login-livelabs2.md",
-      "title": "Get Started"
-    },
-    {
       "description": "Workshop overview and objectives.",
       "filename": "../../introduction/introduction.md",
       "title": "Introduction"
+    },
+    {
+      "description": "Prerequisites for Oracle-hosted LiveLabs environments.",
+      "filename": "https://livelabs.oracle.com/cdn/common/labs/cloud-login/cloud-login-livelabs2.md",
+      "title": "Get Started"
     },
     {
       "description": "Deploy the MCP servers on OCI Container Instances with Resource Manager.",
